@@ -35,6 +35,10 @@ parser.add_option("-p", "--path", dest="path", \
 
 PATH = options.path
 
+OUTPUT_DIR = "DIAGRAMS"
+
+projects_in_path = []
+
 
 """ FUNCTIONS """
 
@@ -42,6 +46,7 @@ def exit_program(reason):
     """Terminates program and displays reason why."""
     print reason
     exit()
+
 
 def display_banner():
     """Prints banner to console."""
@@ -60,6 +65,13 @@ def display_banner():
 
      """
     print banner
+
+
+def install_phuml():
+    """Git clones the phUML repo; it's a required dependency."""
+    PHUML_URL = "https://github.com/jakobwesthoff/phuml.git"
+    rc = subprocess.call(['git', 'clone', PHUML_URL])
+    print '[*] Installed: phUML'
 
 
 def verify_path():
@@ -81,9 +93,72 @@ def verify_path():
         print '[*] Path exists, good!'
 
 
+def verify_installed_dependencies():
+    """Ensure user has downloaded and installed necessary dependencies."""
+
+    print '[*] Checking dependencies exist...'
+
+    # Has phUML been downloaded?
+    if not os.path.isdir('phuml'):
+
+        print '[!] Not Found: phUML'
+
+        # Prompt user to download missing phUML.
+        choice = raw_input('Install phUML (y|n)? ')
+        if choice.lower() =='y' or choice.lower() == 'yes':
+            install_phuml()
+        else:
+            reason = "[!] phuml is required to run this program."
+            exit_program(reason)
+    else:
+        print '[*] Found: phUML, good!'
+
+    print '[*] No missing dependencies, good!'
+
+
+def read_projects_in_path():
+    """Fill global list with names of projects in specified path."""
+    global projects_in_path
+    projects_in_path = os.walk(PATH).next()[1]
+
+
+def verify_projects():
+    """Verify that the specified path actually has projects in it."""
+    if projects_in_path:
+        print '[*] Projects exist in specified path, good!'
+    else:
+        reason = '[!] No projects exist in specified directory.'
+        exit_program(reason)
+
+
+def create_diagram_dir():
+    """Create directory to store generated Class Diagrams."""
+    # If OUTPUT_DIR hasn't been made yet, make it.
+    if not os.path.isdir(OUTPUT_DIR):
+        rc = subprocess.call(['mkdir', OUTPUT_DIR])
+        print '[!] Creating Directory: %s' % OUTPUT_DIR
+    else:
+        print '[*] Directory %s already exists, good!' % OUTPUT_DIR
+
+
+def generate_diagrams():
+    PATH_TO_PHUML = 'phuml/src/app/'
+    for module in projects_in_path:
+        MODULE_NAME = module
+        PATH_TO_MODULE = '%s/%s' % (PATH, MODULE_NAME)
+        rc = subprocess.call(['./phuml', '-r', PATH_TO_MODULE, '-graphviz', '-createAssociations', 'false', '-neato', '%s.png' % MODULE_NAME], cwd=PATH_TO_PHUML)
+        rc = subprocess.call(['mv', '%s.png' % MODULE_NAME, '../../../%s' % OUTPUT_DIR])
+
+
 def main():
     display_banner()
     verify_path()
+    verify_installed_dependencies()
+    read_projects_in_path()
+    verify_projects()
+    create_diagram_dir()
+    generate_diagrams()
+
 
 
 """ PROCESS """
