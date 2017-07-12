@@ -36,12 +36,15 @@ parser.add_option("-p", "--path", dest="path", \
 PATH = options.path
 
 
+""" FUNCTIONS """
+
 def exit_program(reason):
     """Terminates program and displays reason why."""
     print reason
     exit()
 
 def display_banner():
+    """Prints banner to console."""
     banner = """
 
        ___________      (     (           *    (          ___________
@@ -60,20 +63,30 @@ def display_banner():
 
 
 def verify_path():
+    """Ensure user specified a valid path."""
+    # Did user specify a path? (-p)
     if not PATH:
-        reason = "[!] Path not specified! Try running:\n$ python druml.py -p PATH/TO/PROJECTS/\n"
+        reason = "[!] Path not specified! Try running:\n$ python druml.py" \
+                 "-p PATH/TO/PROJECTS/\n"
         exit_program(reason)
-    if not os.path.isdir(os.path.expanduser(PATH)):
-        reason = "[!] Path does not exist!\nCheck for the correct path on your local machine."
+
+    # Does user-specified path actually exist?
+    elif not os.path.isdir(os.path.expanduser(PATH)):
+        reason = "[!] Path does not exist!\nCheck for the correct path on " \
+                 "your local machine."
         exit_program(reason)
+
+    # Path specified and exists.
     else:
         print '[*] Path exists, good!'
+
 
 def main():
     display_banner()
     verify_path()
 
 
-"""PROCESS"""
+""" PROCESS """
+
 if __name__ == "__main__":
     main()
