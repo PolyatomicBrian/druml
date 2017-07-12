@@ -24,6 +24,8 @@ from optparse import OptionParser
 import os
 # Used for running bash commands.
 import subprocess
+# Used for naming newly-created folders.
+import time
 
 
 """ GLOBALS """
@@ -38,6 +40,11 @@ PATH = options.path
 OUTPUT_DIR = "DIAGRAMS"
 
 projects_in_path = []
+
+current_date = time.strftime("%y%m%d")
+current_time = time.strftime("%H%M%S")
+
+new_directory_name = "%s-%s" % (current_date, current_time)
 
 
 """ FUNCTIONS """
@@ -136,9 +143,13 @@ def create_diagram_dir():
     # If OUTPUT_DIR hasn't been made yet, make it.
     if not os.path.isdir(OUTPUT_DIR):
         rc = subprocess.call(['mkdir', OUTPUT_DIR])
-        print '[!] Creating Directory: %s' % OUTPUT_DIR
+        print '[*] Creating Directory: %s' % OUTPUT_DIR
+        rc = subprocess.call(['mkdir', new_directory_name], cwd=OUTPUT_DIR)
+        print '[*] Creating subdirectory: %s' % new_directory_name
     else:
         print '[*] Directory %s already exists, good!' % OUTPUT_DIR
+        rc = subprocess.call(['mkdir', new_directory_name], cwd=OUTPUT_DIR)
+        print '[*] Creating subdirectory: %s' % new_directory_name
 
 
 def generate_diagrams():
@@ -146,8 +157,16 @@ def generate_diagrams():
     for module in projects_in_path:
         MODULE_NAME = module
         PATH_TO_MODULE = '%s/%s' % (PATH, MODULE_NAME)
-        rc = subprocess.call(['./phuml', '-r', PATH_TO_MODULE, '-graphviz', '-createAssociations', 'false', '-neato', '%s.png' % MODULE_NAME], cwd=PATH_TO_PHUML)
-        rc = subprocess.call(['mv', '%s.png' % MODULE_NAME, '../../../%s' % OUTPUT_DIR], cwd=PATH_TO_PHUML)
+        rc = subprocess.call(['./phuml', '-r', PATH_TO_MODULE, '-graphviz',
+                              '-createAssociations', 'false', '-neato',
+                              '%s.png' % MODULE_NAME], cwd=PATH_TO_PHUML)
+        rc = subprocess.call(['mv', '%s.png' % MODULE_NAME,
+                              '../../../%s/%s' % (OUTPUT_DIR, new_directory_name)],
+                              cwd=PATH_TO_PHUML)
+
+
+def display_success():
+    print '\n[*] Class Diagrams successfully saved to %s/%s\n' % (OUTPUT_DIR, new_directory_name)
 
 
 def main():
@@ -158,6 +177,7 @@ def main():
     verify_projects()
     create_diagram_dir()
     generate_diagrams()
+    display_success()
 
 
 
