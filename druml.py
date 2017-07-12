@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 """
-druml.py: Generates a Unified Modeling Language (UML) file and a Class Diagram
-          (PNG) for each Drupal Project in a directory.
+druml.py: Generates a Unified Modeling Language (UML) Class Diagram
+          for each Drupal Project in a directory.
 
 Usage:
         $ python druml.py -p /PATH/TO/PROJECTS/
