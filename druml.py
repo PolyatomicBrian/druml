@@ -147,7 +147,7 @@ def generate_diagrams():
         MODULE_NAME = module
         PATH_TO_MODULE = '%s/%s' % (PATH, MODULE_NAME)
         rc = subprocess.call(['./phuml', '-r', PATH_TO_MODULE, '-graphviz', '-createAssociations', 'false', '-neato', '%s.png' % MODULE_NAME], cwd=PATH_TO_PHUML)
-        rc = subprocess.call(['mv', '%s.png' % MODULE_NAME, '../../../%s' % OUTPUT_DIR])
+        rc = subprocess.call(['mv', '%s.png' % MODULE_NAME, '../../../%s' % OUTPUT_DIR], cwd=PATH_TO_PHUML)
 
 
 def main():
