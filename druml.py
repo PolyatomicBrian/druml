@@ -86,7 +86,7 @@ def verify_path():
     # Did user specify a path? (-p)
     if not PATH:
         reason = "[!] Path not specified! Try running:\n$ python druml.py" \
-                 "-p PATH/TO/PROJECTS/\n"
+                 " -p PATH/TO/PROJECTS/\n"
         exit_program(reason)
 
     # Does user-specified path actually exist?
@@ -154,15 +154,18 @@ def create_diagram_dir():
 
 def generate_diagrams():
     PATH_TO_PHUML = 'phuml/src/app/'
+    print ''
     for module in projects_in_path:
         MODULE_NAME = module
         PATH_TO_MODULE = '%s/%s' % (PATH, MODULE_NAME)
-        rc = subprocess.call(['./phuml', '-r', PATH_TO_MODULE, '-graphviz',
+        print '[*] %s: Generating Class Diagram...' % MODULE_NAME
+        rc = subprocess.check_output(['./phuml', '-r', PATH_TO_MODULE, '-graphviz',
                               '-createAssociations', 'false', '-neato',
                               '%s.png' % MODULE_NAME], cwd=PATH_TO_PHUML)
-        rc = subprocess.call(['mv', '%s.png' % MODULE_NAME,
+        rc = subprocess.check_output(['mv', '%s.png' % MODULE_NAME,
                               '../../../%s/%s' % (OUTPUT_DIR, new_directory_name)],
                               cwd=PATH_TO_PHUML)
+        print '[*] %s: Class Diagram Saved!' % MODULE_NAME
 
 
 def display_success():
