@@ -26,6 +26,8 @@ import os
 import subprocess
 # Used for naming newly-created folders.
 import time
+# Used for printing random closure message.
+import random
 
 
 """ GLOBALS """
@@ -51,7 +53,7 @@ new_directory_name = "%s-%s" % (current_date, current_time)
 
 def exit_program(reason):
     """Terminates program and displays reason why."""
-    print reason
+    print reason + ' Aborting...'
     exit()
 
 
@@ -120,6 +122,18 @@ def verify_installed_dependencies():
     else:
         print '[*] Found: phUML, good!'
 
+    # Has graphviz been downloaded?
+    try:
+        rc = subprocess.check_output(['which', 'dot'])
+        print '[*] Found: graphviz, good!'
+    except:
+
+        # Rather than trying to guess the command the user should use
+        # (apt-get, dnf, ...), let's just have the user do it themselves.
+        print '[!] `graphviz` is required to run this program!'
+        reason = '[!] Run `dnf install graphviz` (or sys equivalent) before trying again.'
+        exit_program(reason)
+
     print '[*] No missing dependencies, good!'
 
 
@@ -159,9 +173,19 @@ def generate_diagrams():
         MODULE_NAME = module
         PATH_TO_MODULE = '%s/%s' % (PATH, MODULE_NAME)
         print '[*] %s: Generating Class Diagram...' % MODULE_NAME
-        rc = subprocess.check_output(['./phuml', '-r', PATH_TO_MODULE, '-graphviz',
-                              '-createAssociations', 'false', '-neato',
-                              '%s.png' % MODULE_NAME], cwd=PATH_TO_PHUML)
+        try:
+            rc = subprocess.check_output(['./phuml', '-r', PATH_TO_MODULE, '-graphviz',
+                                  '-createAssociations', 'false', '-neato',
+                                  '%s.png' % MODULE_NAME], cwd=PATH_TO_PHUML)
+        except Exception as e:
+            reason = '\n[!] PHP\'s allocated memory size has been exceeded!'
+            print reason
+            print '[*] The dependency `phUML` requires a decent amount of memory to run.'
+            print '[*] It is recommended, though not ideal, to edit `php.ini`:'
+            print '[*] Change the line `memory_limit = 128M` to `memory_limit = -1`'
+            print '[*] Then run this program again!'
+            exit_program(reason)
+
         rc = subprocess.check_output(['mv', '%s.png' % MODULE_NAME,
                               '../../../%s/%s' % (OUTPUT_DIR, new_directory_name)],
                               cwd=PATH_TO_PHUML)
@@ -169,7 +193,71 @@ def generate_diagrams():
 
 
 def display_success():
-    print '\n[*] Class Diagrams successfully saved to %s/%s\n' % (OUTPUT_DIR, new_directory_name)
+    print '\n[*] Class Diagrams successfully saved to %s/%s' % (OUTPUT_DIR, new_directory_name)
+    display_closure()
+    print '[*] Class Diagrams successfully saved to %s/%s\n' % (OUTPUT_DIR, new_directory_name)
+
+
+def display_closure():
+    closure = []
+    closure.append("""
+                `\`\                       /'/'
+                  `\`\                   /'/'
+                    `\`\ ............. /'/'
+               ..,;;;;`\`\\'''''''''''/'/';;;,..
+            .:''        `\`\_     _/'/'       ``;.
+            :::.          `(_)   (_)'         ,;;:
+            n:.``;;;,....            ....,;;;'',::
+            :\ ``;;;;. ````::::::::'''''.n;;;''  :
+            : \      ```::n::::::::::'''/ \      :
+            :  \  If a man does not keep pace    :
+            :   \with his companions, perhaps    :
+            :    \ it is because he hears a  \   :
+            :     \   different drummer.      \ /;
+            ::.    \-/Henry David Thoreau      v;:
+            `:.``:::v....       \ /   ....;;;''.;'
+               ``:::... ```::::::v:''' ...;;;''
+                      ````::::::::::''''
+    """)
+    closure.append("""
+                `\`\                       /'/'
+                  `\`\                   /'/'
+                    `\`\ ............. /'/'
+               ..,;;;;`\`\\'''''''''''/'/';;;,..
+            .:''        `\`\_     _/'/'       ``;.
+            :::.          `(_)   (_)'         ,;;:
+            n:.``;;;,....            ....,;;;'',::
+            :\ ``;;;;. ````::::::::'''''.n;;;''  :
+            : \      ```::n::::::::::'''/ \      :
+            :  \    What do you do when your     :
+            :   \ kid can only count to four?    :
+            :    \  Buy him a drumkit and    \   :
+            :     \    call him gifted!       \ /;
+            ::.    \-/    - Tre Cool           v;:
+            `:.``:::v....       \ /   ....;;;''.;'
+               ``:::... ```::::::v:''' ...;;;''
+                      ````::::::::::''''
+    """)
+    closure.append("""
+                `\`\                       /'/'
+                  `\`\                   /'/'
+                    `\`\ ............. /'/'
+               ..,;;;;`\`\\'''''''''''/'/';;;,..
+            .:''        `\`\_     _/'/'       ``;.
+            :::.          `(_)   (_)'         ,;;:
+            n:.``;;;,....            ....,;;;'',::
+            :\ ``;;;;. ````::::::::'''''.n;;;''  :
+            : \      ```::n::::::::::'''/ \      :
+            :  \I never studied anything, really.:
+            :   \   I didn't study the drums.    :
+            :    \  I joined bands and made  \   :
+            :     \ all the mistakes onstage. \ /;
+            ::.    \-/    - Ringo Starr        v;:
+            `:.``:::v....       \ /   ....;;;''.;'
+               ``:::... ```::::::v:''' ...;;;''
+                      ````::::::::::''''
+    """)
+    print random.choice(closure)
 
 
 def main():
@@ -181,7 +269,6 @@ def main():
     create_diagram_dir()
     generate_diagrams()
     display_success()
-
 
 
 """ PROCESS """
