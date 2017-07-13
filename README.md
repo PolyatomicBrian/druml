@@ -48,7 +48,7 @@ the Class Diagrams you'd need in seconds.
 druml requires two dependencies:
 
  - [phUML](https://github.com/jakobwesthoff/phuml) (downloaded during runtime)
- - [graphviz](https://graphviz.org/) (required prior to running)
+ - [graphviz](http://graphviz.org/) (required prior to running)
 
 
  ### phUML
